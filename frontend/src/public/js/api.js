@@ -9,7 +9,7 @@
 // CONFIGURATION - À METTRE À JOUR APRÈS DÉPLOIEMENT
 // ============================================
 // Update BACKEND_API_URL avec votre URL de déploiement
-const BACKEND_API_URL = "https://backend-pltf63ld0-progitanas-projects.vercel.app"; // Backend Vercel
+const BACKEND_API_URL = "https://backend-gamma-nine-86.vercel.app"; // Backend Vercel (stable alias)
 
 // En développement local (uncomment si testé localement)
 // const BACKEND_API_URL = window.location.hostname === 'localhost'
