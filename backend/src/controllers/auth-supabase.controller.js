@@ -5,7 +5,7 @@ const { normalizeRole } = require('../utils/role');
 function signToken(user) {
   const secret = process.env.JWT_SECRET || 'genidoc-secret-key-2024';
   return jwt.sign(
-    { user_id: user.genidoc_user_id, role: user.role, email: user.email },
+    { user_id: user.id, genidoc_user_id: user.genidoc_user_id, role: user.role, email: user.email },
     secret,
     { expiresIn: process.env.JWT_EXPIRES || '7d' }
   );
@@ -38,7 +38,7 @@ async function signup(req, res) {
     if (role !== 'ADMIN') {
       const { data: orgs } = await supabase
         .from('genidoc_organisation')
-        .select('genidoc_org_id')
+        .select('id')
         .limit(1);
 
       if (!orgs || orgs.length === 0) {
@@ -119,7 +119,7 @@ async function signup(req, res) {
     if (role !== 'ADMIN' && org_code) {
       const { data: org } = await supabase
         .from('genidoc_organisation')
-        .select('genidoc_org_id')
+        .select('id')
         .eq('org_code', org_code)
         .single();
 
@@ -174,16 +174,16 @@ async function login(req, res) {
       return res.status(401).json({ message: 'Email ou mot de passe invalide' });
     }
 
-        id: user.id, 
-        genidoc_user_id: user.genidoc_user_id,
-        role: user.role, 
-        email: user.email 
-     
     const token = signToken(user);
     res.json({
       message: 'Connexion réussie',
       token,
-      user: { genidoc_user_id: user.genidoc_user_id, role: user.role, email: user.email },
+      user: { 
+        id: user.id,
+        genidoc_user_id: user.genidoc_user_id, 
+        role: user.role, 
+        email: user.email 
+      },
     });
   } catch (error) {
     console.error('Login error:', error);
@@ -193,19 +193,30 @@ async function login(req, res) {
 
 async function getProfile(req, res) {
   try {
-    const userId = req.user.user_id || req.user.id; // Support both UUID and old genidoc_user_id
+    const userId = req.user.user_id; // UUID from JWT token
 
     const { data: user, error } = await supabase
       .from('genidoc_auth_users')
       .select('*')
-      .or(`id.eq.${userId},genidoc_user_id.eq.${userId}`)
+      .eq('id', userId)
       .single();
 
-    if (error) {
+    if (error || !user) {
       return res.status(404).json({ message: 'Utilisateur non trouvé' });
     }
 
-    res.json({ user });
+    res.json({ 
+      message: 'Profil récupéré',
+      user: {
+        id: user.id,
+        genidoc_user_id: user.genidoc_user_id,
+        nom: user.nom,
+        prenom: user.prenom,
+        email: user.email,
+        role: user.role,
+        created_at: user.created_at,
+      }
+    });
   } catch (error) {
     console.error('Get profile error:', error);
     res.status(500).json({ message: 'Erreur serveur', error: error.message });

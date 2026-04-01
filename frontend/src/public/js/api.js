@@ -9,7 +9,7 @@
 // CONFIGURATION - À METTRE À JOUR APRÈS DÉPLOIEMENT
 // ============================================
 // Update BACKEND_API_URL avec votre URL de déploiement
-const BACKEND_API_URL = 'https://genidoc-api.vercel.app'; // ← REMPLACER avec l'URL réelle
+const BACKEND_API_URL = 'https://yprqmqgopfqwvvmlanri.supabase.co'; // ← REMPLACER avec l'URL réelle
 
 // En développement local (uncomment si testé localement)
 // const BACKEND_API_URL = window.location.hostname === 'localhost' 
