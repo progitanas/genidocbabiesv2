@@ -1,5 +1,5 @@
 // For Production (AWS & Cloudflare deployment)
-const PROD_API_URL = "https://genidoc-backend.asenhaji2.workers.dev";
+const PROD_API_URL = "";
 const LOCAL_IP = "192.168.234.195";
 
 const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
