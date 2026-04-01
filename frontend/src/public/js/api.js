@@ -23,8 +23,8 @@ async function apiFetch(endpoint, options = {}) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         // Ne pas rediriger si on est déjà sur la page de login pour éviter un crash
-        if (!window.location.pathname.includes('/auth/login.html')) {
-            window.location.href = '/auth/login.html';
+        if (!window.location.pathname.includes('/frontend/src/public/auth/login.html')) {
+            window.location.href = '/frontend/src/public/auth/login.html';
         }
     }
 
