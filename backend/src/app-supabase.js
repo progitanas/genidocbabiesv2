@@ -19,8 +19,8 @@ const corsOptions = {
   optionsSuccessStatus: 200,
 };
 
-// Middleware
-app.use(cors(corsOptions));
+// Middleware - Don't use cors here, handled by Vercel serverless
+// app.use(cors(corsOptions)); // Disabled - CORS handled in api/index.js
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
