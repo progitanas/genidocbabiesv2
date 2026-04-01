@@ -9,7 +9,7 @@
 // CONFIGURATION - À METTRE À JOUR APRÈS DÉPLOIEMENT
 // ============================================
 // Update BACKEND_API_URL avec votre URL de déploiement
-const BACKEND_API_URL = "https://backend-1nom44y5l-progitanas-projects.vercel.app"; // Backend Vercel
+const BACKEND_API_URL = "https://backend-h79ptgxsa-progitanas-projects.vercel.app"; // Backend Vercel
 
 // En développement local (uncomment si testé localement)
 // const BACKEND_API_URL = window.location.hostname === 'localhost'
