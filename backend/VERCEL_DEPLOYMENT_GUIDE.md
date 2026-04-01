@@ -5,6 +5,7 @@ Ce guide explique comment déployer le backend Express avec Supabase sur Vercel.
 ## Prérequis
 
 1. **Vercel CLI** - Installer via npm:
+
 ```bash
 npm install -g vercel
 ```
@@ -36,6 +37,7 @@ vercel --prod
 ```
 
 **Lors du premier déploiement:**
+
 - **Framework Preset?** → Sélectionnez "Other" ou "Node.js"
 - **Root directory?** → Laissez vide ou tapez `.`
 - **Build command?** → Laissez vide ou tapez `npm install`
@@ -58,6 +60,7 @@ vercel --prod
 ## Configuration automatique
 
 Le fichier `vercel.json` configure automatiquement:
+
 - **Node.js runtime**: v18.x
 - **Build command**: `npm install`
 - **Routes**: Tous les appels `/api/*` vont au serveur Express
@@ -81,6 +84,7 @@ curl https://genidoc-api.vercel.app/health
 Les variables d'environnement doivent être ajoutées:
 
 1. **Via CLI**:
+
 ```bash
 vercel env add SUPABASE_URL https://yprqmqgopfqwvvmlanri.supabase.co
 vercel env add SUPABASE_ANON_KEY "your_anon_key"
@@ -99,11 +103,13 @@ vercel env add JWT_SECRET "your_jwt_secret"
 Après le déploiement, mettre à jour le frontend:
 
 **Fichier**: `frontend/src/public/js/api.js` (ligne 11)
+
 ```javascript
-const BACKEND_API_URL = 'https://genidoc-api.vercel.app';
+const BACKEND_API_URL = "https://genidoc-api.vercel.app";
 ```
 
 Puis push le changement:
+
 ```bash
 git add -A
 git commit -m "Update backend API URL after Vercel deployment"
@@ -115,11 +121,13 @@ Le frontend sur Vercel se redéploiera automatiquement.
 ## 🧪 Tests après déploiement
 
 ### Test 1: Health Check
+
 ```bash
 curl https://genidoc-api.vercel.app/health
 ```
 
 ### Test 2: Signup
+
 ```bash
 curl -X POST https://genidoc-api.vercel.app/api/auth/signup \
   -H "Content-Type: application/json" \
@@ -134,36 +142,43 @@ curl -X POST https://genidoc-api.vercel.app/api/auth/signup \
 ```
 
 ### Test 3: Check CORS
+
 Aller sur https://www.genidochayat.ma et ouvrir la console:
+
 ```javascript
-fetch('https://genidoc-api.vercel.app/health')
-  .then(r => r.json())
-  .then(d => console.log('✅ API réachable:', d))
-  .catch(e => console.error('❌ Erreur:', e.message))
+fetch("https://genidoc-api.vercel.app/health")
+  .then((r) => r.json())
+  .then((d) => console.log("✅ API réachable:", d))
+  .catch((e) => console.error("❌ Erreur:", e.message));
 ```
 
 ## 🚨 Dépannage
 
 ### Erreur: "Cannot find module"
+
 - Vérifier que tous les `require()` utilisent les chemins relatifs corrects
 - Vérifier que `package.json` est à la racine du projet
 
 ### Erreur: "CORS policy blocked"
+
 - Vérifier que les domaines sont dans `corsOptions` dans `app-supabase.js`:
   - `https://www.genidochayat.ma`
   - `https://genidochayat.ma`
 
 ### Erreur: "Supabase connection failed"
+
 - Vérifier que les variables d'environnement sont définies
 - Vérifier que `SUPABASE_URL` et `SUPABASE_ANON_KEY` sont corrects
 
 ### Build timeout
+
 - Aumentar le timeout dans `vercel.json`
 - Vérifier que `package-lock.json` n'est pas versionné (peut ralentir le build)
 
 ## 📊 Monitoring
 
 Sur le Dashboard Vercel:
+
 - Voir les logs en temps réel
 - Vérifier les erreurs de déploiement
 - Monitorer les performances et l'utilisation

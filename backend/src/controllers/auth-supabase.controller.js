@@ -1,13 +1,18 @@
-const { supabase, supabaseAdmin } = require('../db-supabase');
-const jwt = require('jsonwebtoken');
-const { normalizeRole } = require('../utils/role');
+const { supabase, supabaseAdmin } = require("../db-supabase");
+const jwt = require("jsonwebtoken");
+const { normalizeRole } = require("../utils/role");
 
 function signToken(user) {
-  const secret = process.env.JWT_SECRET || 'genidoc-secret-key-2024';
+  const secret = process.env.JWT_SECRET || "genidoc-secret-key-2024";
   return jwt.sign(
-    { user_id: user.id, genidoc_user_id: user.genidoc_user_id, role: user.role, email: user.email },
+    {
+      user_id: user.id,
+      genidoc_user_id: user.genidoc_user_id,
+      role: user.role,
+      email: user.email,
+    },
     secret,
-    { expiresIn: process.env.JWT_EXPIRES || '7d' }
+    { expiresIn: process.env.JWT_EXPIRES || "7d" },
   );
 }
 
@@ -23,60 +28,77 @@ async function signup(req, res) {
       org_code,
     } = req.body;
 
-    if (!genidoc_nom || !genidoc_prenom || !genidoc_email || !genidoc_password || !genidoc_confirm_password || !genidoc_role) {
-      return res.status(400).json({ message: 'Tous les champs sont obligatoires' });
+    if (
+      !genidoc_nom ||
+      !genidoc_prenom ||
+      !genidoc_email ||
+      !genidoc_password ||
+      !genidoc_confirm_password ||
+      !genidoc_role
+    ) {
+      return res
+        .status(400)
+        .json({ message: "Tous les champs sont obligatoires" });
     }
 
     if (genidoc_password !== genidoc_confirm_password) {
-      return res.status(400).json({ message: 'Mots de passe ne correspondent pas' });
+      return res
+        .status(400)
+        .json({ message: "Mots de passe ne correspondent pas" });
     }
 
     const role = normalizeRole(genidoc_role);
-    if (!role) return res.status(400).json({ message: 'Rôle invalide' });
+    if (!role) return res.status(400).json({ message: "Rôle invalide" });
 
     // Check if organization exists (except for ADMIN)
-    if (role !== 'ADMIN') {
+    if (role !== "ADMIN") {
       const { data: orgs } = await supabase
-        .from('genidoc_organisation')
-        .select('id')
+        .from("genidoc_organisation")
+        .select("id")
         .limit(1);
 
       if (!orgs || orgs.length === 0) {
-        return res.status(400).json({ message: 'Aucune organisation. Crée d\'abord un compte ADMIN.' });
+        return res
+          .status(400)
+          .json({
+            message: "Aucune organisation. Crée d'abord un compte ADMIN.",
+          });
       }
 
       // If org_code provided, verify it exists
       if (org_code) {
         const { data: org } = await supabase
-          .from('genidoc_organisation')
-          .select('id')
-          .eq('org_code', org_code)
+          .from("genidoc_organisation")
+          .select("id")
+          .eq("org_code", org_code)
           .single();
 
         if (!org) {
-          return res.status(400).json({ message: 'Code organisation invalide' });
+          return res
+            .status(400)
+            .json({ message: "Code organisation invalide" });
         }
       }
     }
 
     // Check if email already exists
     const { data: existing } = await supabase
-      .from('genidoc_auth_users')
-      .select('genidoc_user_id')
-      .eq('email', genidoc_email)
+      .from("genidoc_auth_users")
+      .select("genidoc_user_id")
+      .eq("email", genidoc_email)
       .single();
 
     if (existing) {
-      return res.status(400).json({ message: 'Cet email est déjà utilisé' });
+      return res.status(400).json({ message: "Cet email est déjà utilisé" });
     }
 
     // Hash password
-    const bcrypt = require('bcryptjs');
+    const bcrypt = require("bcryptjs");
     const password_hash = await bcrypt.hash(genidoc_password, 10);
 
     // Insert user
     const { data: user, error: userError } = await supabase
-      .from('genidoc_auth_users')
+      .from("genidoc_auth_users")
       .insert([
         {
           nom: genidoc_nom,
@@ -92,9 +114,9 @@ async function signup(req, res) {
     // Format response to use genidoc_user_id (BIGINT) if available, else use id (UUID)
     if (user && !user.genidoc_user_id) {
       const { data: userWithId } = await supabase
-        .from('genidoc_auth_users')
-        .select('genidoc_user_id')
-        .eq('id', user.id)
+        .from("genidoc_auth_users")
+        .select("genidoc_user_id")
+        .eq("id", user.id)
         .single();
       if (userWithId) {
         user.genidoc_user_id = userWithId.genidoc_user_id;
@@ -102,48 +124,53 @@ async function signup(req, res) {
     }
 
     if (userError) {
-      console.error('Supabase createUser error:', userError);
-      return res.status(500).json({ message: 'Erreur création utilisateur', error: userError.message });
+      console.error("Supabase createUser error:", userError);
+      return res
+        .status(500)
+        .json({
+          message: "Erreur création utilisateur",
+          error: userError.message,
+        });
     }
 
     // Initialize onboarding
     const { error: onboardingError } = await supabase
-      .from('genidoc_onboarding')
+      .from("genidoc_onboarding")
       .insert([{ genidoc_user_id: user.id, role, current_step: 1 }]);
 
     if (onboardingError) {
-      console.error('Onboarding creation error:', onboardingError);
+      console.error("Onboarding creation error:", onboardingError);
     }
 
     // Assign organization if not ADMIN
-    if (role !== 'ADMIN' && org_code) {
+    if (role !== "ADMIN" && org_code) {
       const { data: org } = await supabase
-        .from('genidoc_organisation')
-        .select('id')
-        .eq('org_code', org_code)
+        .from("genidoc_organisation")
+        .select("id")
+        .eq("org_code", org_code)
         .single();
 
       if (org) {
         await supabase
-          .from('genidoc_user_organisation')
+          .from("genidoc_user_organisation")
           .insert([{ genidoc_user_id: user.id, genidoc_org_id: org.id }]);
       }
     }
 
     const token = signToken(user);
     res.status(201).json({
-      message: 'Inscription réussie',
+      message: "Inscription réussie",
       token,
-      user: { 
-        id: user.id, 
+      user: {
+        id: user.id,
         genidoc_user_id: user.genidoc_user_id,
-        role: user.role, 
-        email: user.email 
+        role: user.role,
+        email: user.email,
       },
     });
   } catch (error) {
-    console.error('Signup error:', error);
-    res.status(500).json({ message: 'Erreur serveur', error: error.message });
+    console.error("Signup error:", error);
+    res.status(500).json({ message: "Erreur serveur", error: error.message });
   }
 }
 
@@ -152,42 +179,49 @@ async function login(req, res) {
     const { genidoc_email, genidoc_password } = req.body;
 
     if (!genidoc_email || !genidoc_password) {
-      return res.status(400).json({ message: 'Email et mot de passe requis' });
+      return res.status(400).json({ message: "Email et mot de passe requis" });
     }
 
     // Fetch user
     const { data: user, error } = await supabase
-      .from('genidoc_auth_users')
-      .select('*')
-      .eq('email', genidoc_email)
+      .from("genidoc_auth_users")
+      .select("*")
+      .eq("email", genidoc_email)
       .single();
 
     if (error || !user) {
-      return res.status(401).json({ message: 'Email ou mot de passe invalide' });
+      return res
+        .status(401)
+        .json({ message: "Email ou mot de passe invalide" });
     }
 
     // Verify password
-    const bcrypt = require('bcryptjs');
-    const isValidPassword = await bcrypt.compare(genidoc_password, user.password_hash);
+    const bcrypt = require("bcryptjs");
+    const isValidPassword = await bcrypt.compare(
+      genidoc_password,
+      user.password_hash,
+    );
 
     if (!isValidPassword) {
-      return res.status(401).json({ message: 'Email ou mot de passe invalide' });
+      return res
+        .status(401)
+        .json({ message: "Email ou mot de passe invalide" });
     }
 
     const token = signToken(user);
     res.json({
-      message: 'Connexion réussie',
+      message: "Connexion réussie",
       token,
-      user: { 
+      user: {
         id: user.id,
-        genidoc_user_id: user.genidoc_user_id, 
-        role: user.role, 
-        email: user.email 
+        genidoc_user_id: user.genidoc_user_id,
+        role: user.role,
+        email: user.email,
       },
     });
   } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ message: 'Erreur serveur', error: error.message });
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Erreur serveur", error: error.message });
   }
 }
 
@@ -196,17 +230,17 @@ async function getProfile(req, res) {
     const userId = req.user.user_id; // UUID from JWT token
 
     const { data: user, error } = await supabase
-      .from('genidoc_auth_users')
-      .select('*')
-      .eq('id', userId)
+      .from("genidoc_auth_users")
+      .select("*")
+      .eq("id", userId)
       .single();
 
     if (error || !user) {
-      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
     }
 
-    res.json({ 
-      message: 'Profil récupéré',
+    res.json({
+      message: "Profil récupéré",
       user: {
         id: user.id,
         genidoc_user_id: user.genidoc_user_id,
@@ -215,11 +249,11 @@ async function getProfile(req, res) {
         email: user.email,
         role: user.role,
         created_at: user.created_at,
-      }
+      },
     });
   } catch (error) {
-    console.error('Get profile error:', error);
-    res.status(500).json({ message: 'Erreur serveur', error: error.message });
+    console.error("Get profile error:", error);
+    res.status(500).json({ message: "Erreur serveur", error: error.message });
   }
 }
 

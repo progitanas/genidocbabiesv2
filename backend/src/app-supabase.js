@@ -8,15 +8,14 @@ const app = express();
 // CORS Configuration - Allow frontend domains in production
 const corsOptions = {
   origin: [
-    'https://www.genidochayat.ma',
-    'https://genidochayat.ma',
-    'https://genidocbabiesv2-blcq.vercel.app',
-    'http://localhost:3000',
-    'http://localhost:5000',
+    "https://www.genidochayat.ma",
+    "https://genidochayat.ma",
+    "http://localhost:3000",
+    "http://localhost:5000",
   ],
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
   optionsSuccessStatus: 200,
 };
 
