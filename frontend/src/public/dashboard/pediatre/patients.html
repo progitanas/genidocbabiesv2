@@ -205,14 +205,8 @@
 
         function showCard(id, name) {
             const modal = document.getElementById('card-modal');
-            const LOCAL_IP = "192.168.234.195";
-
-            // Utilisation du domaine principal pour les nouveaux QR Codes
-            const baseUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-                ? `http://${LOCAL_IP}:5000`
-                : "https://genidoc.ma";
-
-            const link = `${baseUrl}/scan.html?id=${id}`;
+            const baseUrl = "https://genidocbabiesv2-blcq.vercel.app";  // Frontend URL
+            const link = `${baseUrl}/frontend/src/public/scan.html?id=${id}`;
 
             document.getElementById('modal-patient-name').textContent = name;
             document.getElementById('qr-code-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(link)}`;

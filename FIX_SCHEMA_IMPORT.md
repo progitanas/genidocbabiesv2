@@ -1,6 +1,7 @@
 # 🔧 Fix: Import Schéma Supabase (UUID compatible)
 
 ## Le problème:
+
 ```
 ERROR: 42846: cannot cast type uuid to bigint
 ```
@@ -14,6 +15,7 @@ Utilise le nouveau schéma **supabase-schema-fixed.sql** qui est compatible Supa
 1. **Supprime le précédent schéma** (optionnel mais recommandé)
    - Supabase Dashboard → SQL Editor
    - Exécute:
+
    ```sql
    DROP TABLE IF EXISTS genidoc_vaccination_enfant;
    DROP TABLE IF EXISTS genidoc_consultation;
@@ -41,6 +43,7 @@ Utilise le nouveau schéma **supabase-schema-fixed.sql** qui est compatible Supa
    - Tu dois voir 11 tables créées ✓
 
 ### Pourquoi le fix?
+
 - Ancien schéma: utilisait BIGSERIAL (incompatible Supabase UUID)
 - Nouveau schéma: utilise UUID (standard Supabase) + BIGSERIAL comme fallback
 

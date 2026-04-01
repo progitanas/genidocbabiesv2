@@ -15,7 +15,9 @@ app.use("/frontend", express.static(path.join(__dirname, "../../frontend")));
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // Health check
-app.get("/health", (req, res) => res.json({ ok: true, message: "GeniDoc API running" }));
+app.get("/health", (req, res) =>
+  res.json({ ok: true, message: "GeniDoc API running" }),
+);
 
 // Routes - Use Supabase auth controller
 const authRoutes = require("./routes/auth-supabase.routes");

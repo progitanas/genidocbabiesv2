@@ -3,6 +3,7 @@
 ## ✅ Statut: Prêt pour Production
 
 ### 1️⃣ Tu as déjà configuré:
+
 - ✅ Projet Supabase créé
 - ✅ Credentials Supabase dans `.env`
 - ✅ Backend Express compatible Supabase
@@ -11,6 +12,7 @@
 ### 2️⃣ À faire MAINTENANT:
 
 #### A. Importer le Schéma SQL (3 min)
+
 1. Va à: https://app.supabase.com/project/yprqmqgopfqwvvmlanri/sql/new
 2. Copie tout le contenu de `backend/database/supabase-schema.sql`
 3. Clique **RUN**
@@ -19,6 +21,7 @@
 #### B. Déployer le Backend
 
 **Option 1: Vercel (Recommandé)**
+
 ```bash
 npm i -g vercel
 cd backend
@@ -28,12 +31,14 @@ vercel
 ```
 
 **Option 2: Cloudflare Workers**
+
 ```bash
 cd backend
 wrangler deploy
 ```
 
 **Option 3: Render/Railway**
+
 ```bash
 # Pousse sur GitHub
 git push
@@ -63,6 +68,7 @@ npm run dev:supabase
 ```
 
 Test d'authentification:
+
 ```bash
 # Signup
 curl -X POST http://localhost:5000/api/auth/signup \
@@ -96,33 +102,33 @@ const PROD_API_URL = "https://votre-backend-url.vercel.app"; // À remplacer
 const API = {
   login: async (email, password) => {
     const response = await fetch(`${PROD_API_URL}/api/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         genidoc_email: email,
-        genidoc_password: password
-      })
+        genidoc_password: password,
+      }),
     });
     const data = await response.json();
-    if (data.token) localStorage.setItem('token', data.token);
+    if (data.token) localStorage.setItem("token", data.token);
     return data;
   },
 
   signup: async (nom, prenom, email, password, role) => {
     const response = await fetch(`${PROD_API_URL}/api/auth/signup`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         genidoc_nom: nom,
         genidoc_prenom: prenom,
         genidoc_email: email,
         genidoc_password: password,
         genidoc_confirm_password: password,
-        genidoc_role: role
-      })
+        genidoc_role: role,
+      }),
     });
     return await response.json();
-  }
+  },
 };
 
 export default API;
@@ -139,6 +145,7 @@ export default API;
 - [ ] Tests end-to-end passés
 
 ### 📞 Support Supabase
+
 - Docs: https://supabase.com/docs
 - Dashboard: https://app.supabase.com/project/yprqmqgopfqwvvmlanri
 
@@ -147,6 +154,7 @@ export default API;
 **Status: 🟢 Prêt pour production!**
 
 Prochaines étapes:
+
 1. Importe le schéma SQL
 2. Déploie le backend
 3. Teste l'authentification

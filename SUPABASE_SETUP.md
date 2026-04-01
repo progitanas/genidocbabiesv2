@@ -52,6 +52,7 @@ npm run dev
 ```
 
 ### Test d'inscription (signup) :
+
 ```bash
 curl -X POST http://localhost:5000/api/auth/signup \
   -H "Content-Type: application/json" \
@@ -66,6 +67,7 @@ curl -X POST http://localhost:5000/api/auth/signup \
 ```
 
 ### Test de connexion (login) :
+
 ```bash
 curl -X POST http://localhost:5000/api/auth/login \
   -H "Content-Type: application/json" \
@@ -88,6 +90,7 @@ vercel
 ```
 
 Configurer les variables d'environnement dans Vercel Dashboard:
+
 - **Settings** → **Environment Variables**
 - Ajouter `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
 
@@ -109,6 +112,7 @@ wrangler deploy
 ## Étape 8: Mettre à Jour le Frontend
 
 ### Installer Supabase Client:
+
 ```bash
 cd frontend
 npm install @supabase/supabase-js
@@ -117,23 +121,24 @@ npm install @supabase/supabase-js
 ```
 
 ### Initialiser Supabase dans JavaScript:
+
 ```javascript
 // frontend/src/public/js/supabase-client.js
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = 'https://your-project.supabase.co'
-const supabaseAnonKey = 'your_anon_key_here'
+const supabaseUrl = "https://your-project.supabase.co";
+const supabaseAnonKey = "your_anon_key_here";
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Exemple d'utilisation - Login
 export async function login(email, password) {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
-  })
-  if (error) throw error
-  return data
+  });
+  if (error) throw error;
+  return data;
 }
 
 // Exemple d'utilisation - Signup
@@ -141,36 +146,37 @@ export async function signup(email, password, metadata = {}) {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: metadata }
-  })
-  if (error) throw error
-  return data
+    options: { data: metadata },
+  });
+  if (error) throw error;
+  return data;
 }
 ```
 
 ### Mettre à Jour `api.js`:
+
 ```javascript
 // Remplacer les appels manuels par Supabase
-const { supabase } = require('./supabase-client.js')
+const { supabase } = require("./supabase-client.js");
 
 API.login = async (email, password) => {
   try {
     const response = await fetch(`${API_BASE}/api/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         genidoc_email: email,
-        genidoc_password: password
-      })
-    })
-    const data = await response.json()
-    localStorage.setItem('token', data.token)
-    return data
+        genidoc_password: password,
+      }),
+    });
+    const data = await response.json();
+    localStorage.setItem("token", data.token);
+    return data;
   } catch (error) {
-    console.error('Login failed:', error)
-    throw error
+    console.error("Login failed:", error);
+    throw error;
   }
-}
+};
 ```
 
 ## Étape 9: Configurer Supabase Storage (pour uploads fichiers)
@@ -184,18 +190,18 @@ API.login = async (email, password) => {
    - `avatars` - Pour photos profil
 
 ### Configuration dans le code:
+
 ```javascript
 // Exemple upload de fichier
-const { data, error } = await supabase
-  .storage
-  .from('carnet-uploads')
+const { data, error } = await supabase.storage
+  .from("carnet-uploads")
   .upload(`${userId}/${filename}`, file, {
-    cacheControl: '3600',
-    upsert: true
-  })
+    cacheControl: "3600",
+    upsert: true,
+  });
 
-if (error) throw error
-return data
+if (error) throw error;
+return data;
 ```
 
 ## Sécurité: Row Level Security (RLS)
@@ -210,17 +216,21 @@ SELECT * FROM genidoc_auth_users WHERE genidoc_user_id = auth.uid()::bigint
 ## Troubleshooting
 
 ### Erreur: "SUPABASE_URL is not defined"
+
 → Vérifiez que `.env` existe et contient `SUPABASE_URL`
 
 ### Erreur: "PostgreSQL connection failed"
+
 → Vérifiez les credentials et que le service Supabase est actif
 
 ### JWT Token invalide au frontend
+
 → Vérifiez que `JWT_SECRET` est identique backend/frontend
 
 ---
 
 ## Next Steps
+
 - [ ] Créer un compte Supabase
 - [ ] Importer le schéma PostgreSQL
 - [ ] Configurer variables d'env
